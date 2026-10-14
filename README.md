@@ -1,228 +1,74 @@
-# alibaba-oss-spring-boot-starter
-
-> 阿里云 OSS 的 Spring Boot Starter，开箱即用。  
-> 自动装配阿里云 OSS 客户端，简化文件上传、下载、删除、生成签名 URL 等常用操作。
-
-![Java](https://img.shields.io/badge/Java-21-blue)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)
-![License](https://img.shields.io/badge/License-Apache%202.0-blue)
-
----
-
-## ✨ 功能特性
-
-- 自动装配阿里云 OSS 客户端
-- 支持 `MultipartFile`、`InputStream`、`byte[]` 上传
-- 支持文件下载、删除、判断是否存在
-- 支持生成公开访问 URL / 签名 URL
-- 支持自定义配置与 Bean 覆盖
-- 提供 Spring Boot 配置元数据提示
-- 开箱即用，减少样板代码
-
----
-
-## 🚀 快速开始
-
-### 1. 添加依赖
-
-**Maven:**
-
-```xml
-<dependency>
-    <groupId>com.github.yaolongma</groupId>
-    <artifactId>alibaba-oss-spring-boot-starter</artifactId>
-    <version>最新版本</version>
-</dependency>
-```
-
-**Gradle:**
-
-```groovy
-implementation 'com.github.yaolongma:alibaba-oss-spring-boot-starter:最新版本'
-```
-
-> 如果尚未发布到 Maven Central，可以先使用 GitHub Packages 或本地 `mvn install`。
-
-### 2. 添加配置
-
-`application.yml`：
-
-```yaml
-alibaba:
-  oss:
-    endpoint: oss-cn-hangzhou.aliyuncs.com
-    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID}
-    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET}
-    bucket-name: your-bucket-name
-
-    # 可选配置
-    # dir-prefix: upload/
-    # max-file-size: 10MB
-    # allowed-extension: jpg,jpeg,png,pdf
-```
-
-`application.properties`：
-
-```properties
-alibaba.oss.endpoint=oss-cn-hangzhou.aliyuncs.com
-alibaba.oss.access-key-id=${ALIYUN_OSS_ACCESS_KEY_ID}
-alibaba.oss.access-key-secret=${ALIYUN_OSS_ACCESS_KEY_SECRET}
-alibaba.oss.bucket-name=your-bucket-name
-```
-
-> 配置前缀请按你项目实际实现调整，例如可能是 `aliyun.oss.*`。
-
-### 3. 注入使用
-
-```java
-@RestController
-@RequiredArgsConstructor
-public class FileController {
-
-    private final AlibabaOssTemplate ossTemplate;
-
-    @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile file) {
-        return ossTemplate.upload(file);
-    }
-
-    @GetMapping("/download")
-    public void download(@RequestParam String objectName, HttpServletResponse response) {
-        ossTemplate.download(objectName, response);
-    }
-
-    @DeleteMapping("/delete")
-    public void delete(@RequestParam String objectName) {
-        ossTemplate.delete(objectName);
-    }
-}
-```
-
-> 类名 `AlibabaOssTemplate` 请替换为你项目中实际暴露的模板类名，例如 `OssTemplate`、`OssService`。
-
----
-
-## ⚙️ 配置项说明
-
-| 配置项 | 说明 | 必填 | 默认值 |
-|---|---|---|---|
-| `alibaba.oss.endpoint` | 阿里云 OSS Endpoint | 是 | 无 |
-| `alibaba.oss.access-key-id` | AccessKey ID | 是 | 无 |
-| `alibaba.oss.access-key-secret` | AccessKey Secret | 是 | 无 |
-| `alibaba.oss.bucket-name` | Bucket 名称 | 是 | 无 |
-| `alibaba.oss.dir-prefix` | 上传目录前缀 | 否 | 空 |
-| `alibaba.oss.max-file-size` | 单文件大小限制 | 否 | 无 |
-| `alibaba.oss.allowed-extension` | 允许的扩展名 | 否 | 无 |
-
----
-
-## 🧩 核心 API 示例
-
-### 上传文件
-
-```java
-String url = ossTemplate.upload(multipartFile);
-```
-
-### 上传字节数组
-
-```java
-String url = ossTemplate.upload(bytes, "test.png");
-```
-
-### 下载文件
-
-```java
-InputStream inputStream = ossTemplate.download("upload/test.png");
-```
-
-### 删除文件
-
-```java
-ossTemplate.delete("upload/test.png");
-```
-
-### 判断文件是否存在
-
-```java
-boolean exists = ossTemplate.exists("upload/test.png");
-```
-
-### 生成签名 URL
-
-```java
-String signedUrl = ossTemplate.generateSignedUrl("upload/test.png", 3600);
-```
-
----
-
-## 🔧 自定义配置
-
-如果你需要覆盖默认的 OSS 客户端或模板 Bean，可以自行声明：
-
-```java
-@Configuration
-public class OssConfiguration {
-
-    @Bean
-    public AlibabaOssTemplate alibabaOssTemplate(OSS ossClient) {
-        return new AlibabaOssTemplate(ossClient);
-    }
-}
-```
-
-如果不想启用自动配置，可以排除：
-
-```java
-@SpringBootApplication(exclude = AlibabaOssAutoConfiguration.class)
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-}
-```
-
----
-
-## 📁 项目结构
-
-```text
-alibaba-oss-spring-boot-starter
-├── alibaba-oss-spring-boot-starter
-│   ├── src/main/java
-│   ├── src/main/resources
-│   └── pom.xml
-├── README.md
-└── LICENSE
-```
-
----
-
-## ❓ 常见问题
-
-### 1. 必须使用 JDK 21 吗？
-
-当前项目基于 JDK 21 开发。如果你的项目使用更低版本，需要确认编译目标和依赖兼容性。
-
-### 2. AccessKey 如何安全配置？
-
-不要硬编码在代码中。推荐使用环境变量、配置中心或 CI/CD Secret：
-
-```yaml
-alibaba:
-  oss:
-    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID}
-    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET}
-```
-
-### 3. 如何限制上传文件类型？
-
-可以通过配置项限制扩展名，也可以在业务代码中自行校验。
-
-### 4. 如何自定义上传路径？
-
-可以使用 `dir-prefix`，或在上传时传入完整 `objectName`。
-
----
-
-
+Alibaba OSS Spring Boot Starter
+
+
+
+开箱即用的阿里云 OSS (Object Storage Service) Spring Boot 自动装配组件。旨在简化凭证管理、流式文件上传、删除及目录列举操作，减少样板代码，契合云原生最佳实践。
+✨ 功能特性
+🚀 开箱即用：自动装配线程安全的 OSSClient 单例，容器关闭时自动释放资源。
+🔐 智能凭证解析：优先读取配置文件中的 AccessKey；若留空，则自动回退读取环境变量（OSS_ACCESS_KEY_ID / OSS_ACCESS_KEY_SECRET），完美适配 K8s / 容器化部署。
+🛡️ 防 OOM 设计：上传接口直接接收 InputStream 进行流式透传，避免大文件全量加载到 JVM 内存。
+📁 自动路径防冲突：内置基于日期（yyyy/MM/dd）和 UUID 的文件名生成策略，避免文件覆盖。
+📋 基础操作支持：支持文件流式上传、删除、获取访问 URL 以及按日期前缀的分页列举。
+🚀 快速开始
+1. 添加依赖
+将以下依赖添加到你的 pom.xml 中（请替换 最新版本 为实际的 Release 版本号）：
+xml
+
+12345
+2. 添加配置
+在 application.yml 中配置 OSS 基础信息：
+yaml
+
+123456789
+3. 注入使用
+直接在需要的地方注入 OssTemplate 即可使用：
+java
+
+12345678910111213141516171819202122232425262728293031323334353637383940414243
+⚙️ 配置项说明
+配置项
+说明
+必填
+默认值 / 行为
+alibaba.oss.region
+阿里云 OSS 地域节点 (如 oss-cn-hangzhou)
+是
+无
+alibaba.oss.bucket
+目标 Bucket 名称
+是
+无
+alibaba.oss.access-key-id
+AccessKey ID
+否
+留空时自动读取环境变量 OSS_ACCESS_KEY_ID
+alibaba.oss.access-key-secret
+AccessKey Secret
+否
+留空时自动读取环境变量 OSS_ACCESS_KEY_SECRET
+🧩 核心 API 说明
+方法签名
+说明
+返回值
+upload(InputStream in, String fileName)
+流式上传文件。自动附加 yyyy/MM/dd/uuid_ 前缀防冲突。
+String (文件的完整公网访问 URL)
+getUrl(String key)
+根据已知的 Object Key 拼接并返回公网访问 URL。
+String
+delete(String fileName)
+根据完整的 Object Key (包含路径) 删除文件。
+void
+getFiles()
+列举当天 (yyyy/MM/dd) 目录下的文件（默认分页大小 1000）。
+ListObjectsV2Result
+getFiles(String continuationToken)
+带分页 Token 列举当天目录下的文件。
+ListObjectsV2Result
+⚠️ 当前版本限制与注意事项
+类名拼写：请确保引入的类名为 OssTemplate（部分早期版本可能存在 OssTemplete 的拼写错误，请以最新代码为准）。
+流式上传：为了保证大文件上传时的内存安全，API 设计为接收 InputStream。如需上传 byte[] 或 MultipartFile，请在业务层调用 .getInputStream() 传入。
+URL 生成规则：getUrl 方法目前基于标准规则拼接（https://{bucket}.oss-{region}.aliyuncs.com/{key}）。如果你的 Bucket 绑定了自定义域名 (CNAME)，当前版本暂不支持自动替换，需在业务层自行拼接。
+未包含的功能：当前轻量级版本暂未包含 文件下载流 (download)、签名 URL 生成 (generateSignedUrl) 及 文件扩展名/大小校验。如有需要，欢迎在业务层基于注入的 OSSClient 自行扩展，或提交 PR 贡献代码。
+📄 License
+This project is licensed under the Apache License 2.0.
