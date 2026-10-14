@@ -1,0 +1,36 @@
+{
+  "groups": [
+    {
+      "name": "alibaba.oss",
+      "type": "com.alibaba.autoConfiguration.OssProperties",
+      "sourceType": "com.alibaba.autoConfiguration.OssProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "alibaba.oss.access-key-id",
+      "type": "java.lang.String",
+      "description": "显式 AccessKey。两个字段都填了才生效； 留空则回退读取环境变量（OSS_ACCESS_KEY_ID \/ OSS_ACCESS_KEY_SECRET）。",
+      "sourceType": "com.alibaba.autoConfiguration.OssProperties"
+    },
+    {
+      "name": "alibaba.oss.access-key-secret",
+      "type": "java.lang.String",
+      "sourceType": "com.alibaba.autoConfiguration.OssProperties"
+    },
+    {
+      "name": "alibaba.oss.bucket",
+      "type": "java.lang.String",
+      "sourceType": "com.alibaba.autoConfiguration.OssProperties"
+    },
+    {
+      "name": "alibaba.oss.region",
+      "type": "java.lang.String",
+      "sourceType": "com.alibaba.autoConfiguration.OssProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

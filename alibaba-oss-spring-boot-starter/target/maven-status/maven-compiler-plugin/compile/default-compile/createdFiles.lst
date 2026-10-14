@@ -1,0 +1,5 @@
+com\alibaba\autoConfiguration\OssAutoConfiguration.class
+com\alibaba\autoConfiguration\OssProperties.class
+com\alibaba\core\exception\OssException.class
+com\alibaba\core\service\OssTemplete.class
+META-INF\spring-configuration-metadata.json
